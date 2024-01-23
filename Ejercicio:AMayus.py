@@ -11,11 +11,15 @@ def amayus(palabra):
                 contador_minusculas += 1
                 if letra == letra_minus:
                     string_mayus += string.ascii_uppercase[contador_minusculas - 1]
+                    break
+                elif letra in (list(string.ascii_uppercase)):
+                    string_mayus += letra
+                    break
     return string_mayus
 
 
 def main():
-    print(amayus("mamahuevo"))
+    print(amayus("Mamahuevo"))
 
 
 if __name__ == "__main__":
