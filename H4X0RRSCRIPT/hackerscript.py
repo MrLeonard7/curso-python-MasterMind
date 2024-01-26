@@ -1,5 +1,7 @@
+import glob
 import os
 import re
+from shutil import copyfile
 import sqlite3
 from time import sleep
 from random import randrange
@@ -46,10 +48,14 @@ def created_hacker_file(desktop_path):
 def get_history_path(system_operative, user_path):
     if system_operative == "Linux":
         history_path = user_path + "/.var/app/com.brave.Browser/config/BraveSoftware/Brave-Browser/Default/History"
-        return history_path
+        temp_history = history_path + "temp"
+        copyfile(history_path, temp_history)
+        return temp_history
     else:
         history_path = user_path + "\\AppData\\Local\\BraveSoftware\\Brave-Browser\\User Data\\Default\\History"
-        return history_path
+        temp_history = history_path + "temp"
+        copyfile(history_path, temp_history)
+        return temp_history
 
 
 def get_brave_history(history_path):
@@ -105,7 +111,7 @@ def check_bank_account(user_history):
 
 
 def write_in_hacker_file(hacker_file, youtube_profile_visited, facebook_profile_visited,
-                        twitter_profile_visited, bank_user):
+                        twitter_profile_visited, bank_user, last_games_played):
     with hacker_file:
         if youtube_profile_visited:
             hacker_file.write("\nAcaso te gusta mirar en YouTube a {}. INTERESANTE ...".format(", ".join(youtube_profile_visited)))
@@ -115,10 +121,19 @@ def write_in_hacker_file(hacker_file, youtube_profile_visited, facebook_profile_
             hacker_file.write("\nQue chismeas en el perfil de Twitter de {}. INTERESANTE ...".format(", ".join(twitter_profile_visited)))
         if bank_user:
             hacker_file.write("\nAcaso tu dinero esta guardado en el Banco{}. INTERESANTE ...".format(bank_user))
+        if last_games_played:
+            hacker_file.write("\nHe visto que has estado jugando ultimamente a {}... Jajajaja".format(", ".join(last_games_played[:3])))
 
 
 def check_steam_games():
-    pass
+    last_modified = []
+    games = []
+    steam_path = "/home/devleo/Documentos/e-books/*"
+    games_paths = glob.glob(steam_path)
+    games_paths.sort(key=os.path.getmtime, reverse=True)
+    for game_path in games_paths:
+        games.append(game_path.split("/")[-1])  
+    return games
 
 
 def main():
@@ -144,9 +159,11 @@ def main():
     twitter_profile_visited = check_twitter_profile(user_history)
     # Recogemos el banco al que pertenece el usuario 
     bank_user = check_bank_account(user_history)
+    # Recogemos los juegos que el usuario juega de steam
+    last_games_played = check_steam_games()
     # Escribimos en hackerfile
     write_in_hacker_file(hacker_file, youtube_profile_visited, facebook_profile_visited,
-                        twitter_profile_visited, bank_user)
+                        twitter_profile_visited, bank_user, last_games_played)
 
 
 if __name__ == "__main__":
